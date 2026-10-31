@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f4ef">
+<link rel="icon" href="data:,">
+<title>我平时怎么用 AI · 楼贝怡</title>
+<link rel="stylesheet" href="style.css?v=11010010">
+<script>
+  window.__errors = [];
+  window.addEventListener('error', function (e) { if (e.message) window.__errors.push(e.message); });
+  // 动画开关：系统「减少动态效果」或 ?static 时关闭动画、直接显示全部内容
+  if ((window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || /[?&](static|check)\b/.test(location.search)) {
+    document.documentElement.classList.add('no-motion');
+  }
+  // 图片按 .jpg → .png → .webp 顺序尝试；都不存在时保留占位框
+  var PH_EXTS = ['jpg', 'png', 'webp'];
+  function phError(img) {
+    var i = (+img.dataset.try || 0) + 1;
+    if (i < PH_EXTS.length) {
+      img.dataset.try = i;
+      img.src = img.src.replace(/\.(jpg|png|webp)(\?.*)?$/i, '.' + PH_EXTS[i]);
+    } else {
+      phMissing(img);
+      img.removeAttribute('src');
+    }
+  }
+  function phLoad(img) {
+    img.closest('.ph').classList.add('is-loaded');
+  }
+  function phMissing(img) {
+    img.closest('.ph').classList.add('is-missing');
+  }
+  // 先读 images/ 目录列表（python http.server 自带），只加载真实存在的文件，避免 404 报错；
+  // 读不到目录列表（双击打开 / 其他服务器）时，退回 jpg → png → webp 依次尝试
+  document.addEventListener('DOMContentLoaded', function () {
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('.ph img[data-src]'));
+    function tryAll() { imgs.forEach(function (img) { img.src = img.dataset.src; }); }
+    if (!/^https?:$/.test(location.protocol) || !window.fetch) return tryAll();
+    fetch('images/', { cache: 'no-store' }).then(function (r) {
+      var type = r.headers.get('content-type') || '';
+      if (!r.ok || type.indexOf('text/html') < 0) throw 0;
+      return r.text();
+    }).then(function (html) {
+      if (!/Directory listing/i.test(html)) throw 0;
+      var have = {};
+      html.replace(/href="([^"]+)"/g, function (m, h) { have[decodeURIComponent(h).toLowerCase()] = h; });
+      imgs.forEach(function (img) {
+        var base = img.dataset.src.replace(/^images\//, '').replace(/\.(jpg|png|webp)$/i, '');
+        for (var k = 0; k < PH_EXTS.length; k++) {
+          var hit = have[(base + '.' + PH_EXTS[k]).toLowerCase()];
+          if (hit) { img.dataset.try = PH_EXTS.length; img.src = 'images/' + hit; return; }
+        }
+        phMissing(img);
+      });
+    }).catch(tryAll);
+  });
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#1">我平时怎么用 AI</a>
+  <nav class="tabs" aria-label="章节导航">
+    <a href="#1" data-part="open">开场</a>
+    <a href="#3" data-part="work">工作篇</a>
+    <a href="#14" data-part="life">生活篇</a>
+    <a href="#18" data-part="qa">结尾</a>
+  </nav>
+  <div class="counter"><span id="cur">1</span><span class="sep">/</span><span id="total">19</span></div>
+  <div class="progress"><i id="bar"></i></div>
+</header>
+
+<nav class="stepper" aria-label="工作流程">
+  <a href="#" data-step="1"><b>1</b>需求收集</a><i></i>
+  <a href="#" data-step="2"><b>2</b>方案产出</a><i></i>
+  <a href="#" data-step="3"><b>3</b>测试验收</a><i></i>
+  <a href="#" data-step="4"><b>4</b>数据分析</a><i></i>
+  <a href="#" data-step="5"><b>+</b>提效习惯</a>
+</nav>
+
+<div class="glow" aria-hidden="true"></div>
+
+<main id="deck">
+
+<!-- ============ 开场 ============ -->
+<section class="slide cover" data-part="open">
+  <div class="slide-inner center">
+    <p class="eyebrow r">内部分享</p>
+    <h1 class="mega chars">我平时怎么用 AI</h1>
+    <p class="subtitle r">产品经理的日常 AI 工作流</p>
+    <p class="speaker r">楼贝怡<span>·</span>AI 产品经理<span>·</span>粉象生活</p>
+  </div>
+  <p class="hint r">按 → / 空格 / 翻页笔 翻页</p>
+</section>
+
+<section class="slide" data-part="open">
+  <div class="slide-inner">
+    <p class="eyebrow r">今天分两部分</p>
+    <h2 class="r">工作 <em class="hl">+</em> 生活，两条线</h2>
+    <div class="agenda">
+      <a class="agenda-card theme-work r" href="#3">
+        <span class="agenda-tag">Part 1</span>
+        <h3>工作篇</h3>
+        <p>按产品经理的工作流程走一遍</p>
+      </a>
+      <a class="agenda-card theme-life r" href="#14">
+        <span class="agenda-tag">Part 2</span>
+        <h3>生活篇</h3>
+        <p>Grok Bot 管生活</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 工作篇 ============ -->
+<section class="slide divider theme-work" data-part="work">
+  <div class="slide-inner center">
+    <p class="eyebrow r">Part 1</p>
+    <h2 class="divider-title r"><em class="hl">工作篇</em></h2>
+    <p class="lead r">按产品经理的工作流程走一遍</p>
+    <ol class="roadmap">
+      <li class="r"><b>一</b><span>需求收集</span></li>
+      <li class="r"><b>二</b><span>方案产出</span></li>
+      <li class="r"><b>三</b><span>测试验收</span></li>
+      <li class="r"><b>四</b><span>数据分析</span></li>
+    </ol>
+    <p class="roadmap-label r">再加三个提效习惯</p>
+    <ol class="roadmap alt">
+      <li class="r"><b>+</b><span>重复流程做成 Skill</span></li>
+      <li class="r"><b>+</b><span>AI 先自查再交付</span></li>
+      <li class="r"><b>+</b><span>离开电脑也能干活</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 一、需求收集 1 -->
+<section class="slide theme-work" data-part="work" data-step="1">
+  <div class="slide-inner">
+    <p class="eyebrow r">一、需求收集 · 来源 1/3</p>
+    <h2 class="r">日常与临时沟通 <span class="sub"><i class="dash">——</i> <em class="hl">安克录音豆</em></span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>会议已经有飞书妙记，但很多需求是在非会议场合聊出来的，来不及记，事后只能靠回忆补。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>录音豆<b class="hl">按一下就开录</b>，随时随地记下临时沟通；录完自动上传飞书，直接丢给 AI 整理成需求点。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:2.933">
+        <figure class="ph" style="--r:1.333">
+          <img data-src="images/01-recorder.jpg" alt="安克录音豆实物照" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：安克录音豆实物照</strong><code>images/<wbr>01-recorder.jpg</code></figcaption>
+        </figure>
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/02-feishu-transcript.jpg" alt="飞书里的录音转写截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：飞书里的录音转写截图</strong><code>images/<wbr>02-feishu-transcript.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 一、需求收集 2：用户反馈（用户体验看板） -->
+<section class="slide theme-work" data-part="work" data-step="1">
+  <div class="slide-inner">
+    <p class="eyebrow r">一、需求收集 · 来源 2/3</p>
+    <h2 class="r">用户反馈 <span class="sub"><i class="dash">——</i> 从体验问题里<em class="hl">发现需求</em></span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>用户问题散在数据监控、badcase、用户点踩、电话回访等多个渠道，不清楚用户到底遇到了哪些问题，也很难及时跟进。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>把各渠道的反馈汇总到<b class="hl">「用户体验」看板</b>，问题一目了然；及时推进<b class="hl">修复</b>或<b class="hl">优化迭代</b>。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:1.6">
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/18-ux-dashboard.jpg" alt="用户体验看板截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：用户体验看板截图</strong><code>images/<wbr>18-ux-dashboard.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 一、需求收集 3：竞品 -->
+<section class="slide theme-work" data-part="work" data-step="1">
+  <div class="slide-inner">
+    <p class="eyebrow r">一、需求收集 · 来源 3/3</p>
+    <h2 class="r">竞品调研 <span class="sub"><i class="dash">——</i> AI 帮我<em class="hl">盯动态、试产品</em></span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p><b>看动态</b>：要自己隔三差五去搜、去刷，常常是人家上线好几天了才知道。</p>
+          <p><b>试产品</b>：竞品好不好用，还得自己一个个去试。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p><b>看动态</b>：用 <b class="hl">Grok Bot</b> 订阅竞品，每天把动态推给我。</p>
+          <p><b>试产品</b>：让 AI <b class="hl">替我上手体验</b>竞品，截图整理成对比文档。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:2.1625">
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/05-competitor-alert.jpg" alt="竞品动态推送截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：竞品动态推送截图</strong><code>images/<wbr>05-competitor-alert.jpg</code></figcaption>
+        </figure>
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/05b-competitor-phone.jpg" alt="AI 操作手机体验竞品的截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：AI 上手体验竞品</strong><code>images/<wbr>05b-competitor-phone.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 二、方案产出 1 -->
+<section class="slide theme-work" data-part="work" data-step="2">
+  <div class="slide-inner">
+    <p class="eyebrow r">二、方案产出</p>
+    <h2 class="r">描述需求，<span class="sub">直接用<em class="hl">语音</em>说</span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>描述需求时脑子里有想法，但打字慢、写出来零散，AI 容易理解跑偏。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>直接口述，用<b class="hl">语音输入法</b>：</p>
+          <ul class="points small">
+            <li><b>Typeless</b>：把口语整理成结构化文字，AI 理解更准</li>
+            <li><b>微信输入法、通义千问</b>：也有类似的免费功能</li>
+          </ul>
+        </div>
+      </div>
+      <div class="media" style="--sum:1.6">
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/06-typeless.jpg" alt="Typeless 使用截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：Typeless 使用截图</strong><code>images/<wbr>06-typeless.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 三、测试验收：真机测试流程动画（安装 → 登录 → 跑 case → 飞书文档） -->
+<section class="slide theme-work demo-test" data-part="work" data-step="3">
+  <div class="slide-inner">
+    <p class="eyebrow r">三、测试验收</p>
+    <h2 class="r">Agent 直接控制手机 <span class="sub">做真机测试</span></h2>
+    <div class="flow-grid">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>没有测试人员介入时全靠产品验收，以前只能纯人工手搓测试，关键场景 case 繁多，根本测不全。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>通过 <b class="hl">Phone Use</b>（iPhone）、<b class="hl">安卓 ADB</b> 等工具，让 Agent 直接控制手机做真机测试，测试结果自动整理输出到<b>飞书文档</b>，直接同步给开发。</p>
+          <p class="punch">彻底解放双手。</p>
+        </div>
+      </div>
+      <div class="flow pop" aria-label="示意动画：Agent 安装测试包、登录、执行测试 case、生成飞书文档">
+        <ol class="flow-steps">
+          <li><b>1</b>安装测试包</li><li><b>2</b>登录</li><li><b>3</b>跑测试 case</li><li><b>4</b>生成飞书文档</li>
+        </ol>
+        <div class="flow-stage">
+          <div class="fphone">
+            <div class="fscreen s1">
+              <p class="fs-title">蒲公英 · 下载测试包</p>
+              <div class="app-ic">粉</div>
+              <p class="app-name">粉象生活 · 测试包</p>
+              <div class="pbar"><i></i></div>
+              <p class="fs-note"><span class="na">下载安装中…</span><span class="nb">安装完成 ✓</span></p>
+            </div>
+            <div class="fscreen s2">
+              <p class="fs-title">登录</p>
+              <div class="field"><span>手机号</span><em class="type" data-text="138 0000 0000"></em></div>
+              <div class="field"><span>密码</span><em class="type" data-text="••••••"></em></div>
+              <div class="fbtn">登录</div>
+              <p class="fs-note ok">登录成功 ✓</p>
+            </div>
+            <div class="fscreen s3">
+              <p class="fs-title">执行测试 case</p>
+              <ul class="fcases">
+                <li>粘贴商品链接<i class="pass">✓</i></li>
+                <li>查看比价结果<i class="pass">✓</i></li>
+                <li>领券下单<i class="fail">✗</i></li>
+                <li>历史价走势<i class="pass">✓</i></li>
+                <li>切换平台<i class="pass">✓</i></li>
+              </ul>
+            </div>
+            <div class="fscreen s4">
+              <p class="fs-title">整理结果</p>
+              <div class="fsum"><b>5</b><span>条 case 已跑完</span></div>
+              <div class="fsum bad"><b>1</b><span>个问题 · 已截图</span></div>
+              <p class="fs-note ok">正在写入飞书文档…</p>
+            </div>
+          </div>
+          <div class="fdoc">
+            <div class="fdoc-bar"><i></i><i></i><i></i><span>飞书文档</span></div>
+            <div class="fdoc-body">
+              <h4>版本验收报告</h4>
+              <div class="dl dsec" data-s="1"><span class="ok">✓</span>安装测试包</div>
+              <div class="dl dsec" data-s="2"><span class="ok">✓</span>登录测试账号</div>
+              <div class="dl dsec" data-s="3">测试 case 结果</div>
+              <ul class="dl dcases" data-s="3">
+                <li>粘贴商品链接<i class="pass">✓</i></li>
+                <li>查看比价结果<i class="pass">✓</i></li>
+                <li>领券下单<i class="fail">✗</i></li>
+                <li>历史价走势<i class="pass">✓</i></li>
+                <li>切换平台<i class="pass">✓</i></li>
+              </ul>
+              <div class="dl drow" data-s="4"><span class="tag">问题 1</span>领券下单无响应<em>附截图 · 复现步骤</em></div>
+              <div class="dl ddone" data-s="4">✓ 已同步给开发</div>
+            </div>
+          </div>
+        </div>
+        <p class="flow-cap">示意动画 · 循环播放</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 四、数据分析：业务看板 -->
+<section class="slide theme-work" data-part="work" data-step="4">
+  <div class="slide-inner">
+    <p class="eyebrow r">四、数据分析</p>
+    <h2 class="r">业务看板 <span class="sub"><i class="dash">——</i> 每天自动刷新、推送</span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>想看一个数，要自己写 SQL 或等数据同学排期；每天早上还得手动翻好几张表。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>让 AI 搭好<b class="hl">业务数据看板</b>，工作日每天早上自动刷新，<b class="hl">数据早报</b>直接推送给我。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:2.1625">
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/03-dashboard.jpg" alt="数据看板截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：数据看板截图</strong><code>images/<wbr>03-dashboard.jpg</code></figcaption>
+        </figure>
+        <figure class="ph" style="--r:0.5625">
+          <img data-src="images/04-daily-report.jpg" alt="数据早报推送截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：数据早报推送截图</strong><code>images/<wbr>04-daily-report.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 提效习惯 1：Skill -->
+<section class="slide theme-work" data-part="work" data-step="5">
+  <div class="slide-inner">
+    <p class="eyebrow r">提效习惯 1</p>
+    <h2 class="r">重复的流程，<span class="sub">做成 <em class="hl">Skill</em></span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>写周报、写软著这类事每次都要重新交代一遍格式和步骤，AI 每次的结果还不一样。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>把流程和格式封装成 <b class="hl">Skill</b>，一句话触发，按固定步骤自动执行。</p>
+        </div>
+        <div class="chips">
+          <span class="r">写周报</span><span class="r">写软著</span>
+        </div>
+      </div>
+      <div class="media" style="--sum:1.6">
+        <figure class="ph" style="--r:1.6">
+          <img data-src="images/11-skill-list.jpg" alt="Skill 列表截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：Skill 列表截图</strong><code>images/<wbr>11-skill-list.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 提效习惯 2：循环自查 -->
+<section class="slide theme-work" data-part="work" data-step="5">
+  <div class="slide-inner">
+    <p class="eyebrow r">提效习惯 2</p>
+    <h2 class="r">AI 先自查，<span class="sub">过关了再给我</span></h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>PRD、原型、数据分析、竞品分析……AI 每次交过来，都要我逐条检查、反复调整，非常耗精力。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>按工作类型整理出我的<b>规范和规则</b>。AI 做完先按规则<b class="hl">自查</b>，再让<b class="hl">另一个模型打分</b>，通过了才交给我；我再改过的地方，自动沉淀回规则 —— <b class="hl">越用越省心。</b></p>
+        </div>
+      </div>
+      <div class="loop-wrap">
+        <div class="loop pop" role="img" aria-label="循环自查：AI 完成产出，按我的规则自查，另一个模型打分，通过后交给我，我改过的地方沉淀回规则，下一次更准">
+          <svg class="loop-ring" viewBox="0 0 100 100" aria-hidden="true">
+            <defs>
+              <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#2547d0"/><stop offset="1" stop-color="#7a4fd6"/>
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="35" />
+            <circle class="ring-run" cx="50" cy="50" r="35" pathLength="100" />
+            <g class="loop-arrows">
+              <polygon points="-2.2,-2 2.2,0 -2.2,2" transform="rotate(-54 50 50) translate(85 50) rotate(90)" />
+              <polygon points="-2.2,-2 2.2,0 -2.2,2" transform="rotate(18 50 50) translate(85 50) rotate(90)" />
+              <polygon points="-2.2,-2 2.2,0 -2.2,2" transform="rotate(90 50 50) translate(85 50) rotate(90)" />
+              <polygon points="-2.2,-2 2.2,0 -2.2,2" transform="rotate(162 50 50) translate(85 50) rotate(90)" />
+              <polygon class="back" points="-2.2,-2 2.2,0 -2.2,2" transform="rotate(234 50 50) translate(85 50) rotate(90)" />
+            </g>
+          </svg>
+          <div class="loop-center"><b class="hl">循环自查</b><span>按工作类型的规则</span></div>
+          <div class="node n1 r"><i>1</i>AI 完成产出</div>
+          <div class="node n2 r"><i>2</i>按我的规则<br>自查</div>
+          <div class="node n3 r"><i>3</i>另一个模型<br>打分</div>
+          <div class="node n4 r"><i>4</i>通过才交给我<small>不通过就退回重做</small></div>
+          <div class="node n5 r"><i>5</i>我的修改<br>沉淀回规则</div>
+          <div class="loop-back r">↺ 下一次更准</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 提效习惯 3：离开电脑也能干活（手机 → 电脑 → 终端打字动画） -->
+<section class="slide theme-work demo-relay" data-part="work" data-step="5">
+  <div class="slide-inner">
+    <p class="eyebrow r">提效习惯 3</p>
+    <h2 class="r">离开电脑，<span class="sub">AI 也能干活</span></h2>
+    <div class="relay-grid">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>以前离开电脑，AI 就没法干活。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>用手机上的 <b>Grok Bot</b> 操控电脑、指挥 <b>Claude</b> 干活，<b class="hl">人不在工位，活也在推进</b> —— 感觉时间都被延长了。</p>
+        </div>
+      </div>
+      <div class="relay-demo pop" aria-label="示意：手机 Grok Bot 到电脑再到 Claude 干活">
+        <div class="mini-phone">
+          <div class="mp-head">Grok Bot</div>
+          <div class="bubble me">指挥 Claude 干活</div>
+          <div class="bubble bot">收到，交给电脑上的 Claude</div>
+          <span class="mp-label">手机 · <b>Grok Bot</b></span>
+        </div>
+        <div class="wire" aria-hidden="true"><i></i><i></i><i></i><span>电脑</span></div>
+        <div class="term" data-type-start="1500">
+          <div class="term-bar"><i></i><i></i><i></i><span>电脑 · Claude</span></div>
+          <div class="term-body">
+            <div class="tl cmd"><span class="pr">$</span> 来自手机 Grok Bot 的指令</div>
+            <div class="tl"><span class="ok">→</span> 接收指令</div>
+            <div class="tl"><span class="ok">→</span> 读取文件</div>
+            <div class="tl"><span class="ok">→</span> 执行</div>
+            <div class="tl"><span class="ok">→</span> 完成并回传</div>
+            <div class="tl done"><span class="ok">✓</span> 人不在电脑前，AI 也在干活</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 生活篇 ============ -->
+<section class="slide divider theme-life" data-part="life">
+  <div class="slide-inner center">
+    <p class="eyebrow r">Part 2</p>
+    <h2 class="divider-title r"><em class="hl">生活篇</em></h2>
+    <p class="lead r">Grok Bot 管生活</p>
+    <blockquote class="r">生活中我用 Grok Bot 最多，基本能把生活里的各类事项都管起来。</blockquote>
+    <ol class="roadmap">
+      <li class="r"><b>1</b><span>日常提醒与待办</span></li>
+      <li class="r"><b>2</b><span>一句话点咖啡、打车</span></li>
+      <li class="r"><b>3</b><span>制定出游攻略</span></li>
+      <li class="r"><b>4</b><span>电商比价下单</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="slide theme-life" data-part="life">
+  <div class="slide-inner">
+    <p class="eyebrow r">生活篇 · 1/4</p>
+    <h2 class="r">日常提醒与待办</h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>事情一多就容易忘，待办东记一笔、西记一笔，哪件先做全靠临时想。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>到点提醒我<b class="hl">健身</b>、提醒我<b class="hl">学习</b>；每天早上帮我把当天待办<b class="hl">理好、排好先后</b>，照着做就行。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:0.5625">
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/13-daily-todo.jpg" alt="提醒与待办规划截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：提醒与待办规划截图</strong><code>images/<wbr>13-daily-todo.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide theme-life" data-part="life">
+  <div class="slide-inner">
+    <p class="eyebrow r">生活篇 · 2/4</p>
+    <h2 class="r">一句话点咖啡、打车</h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>点杯咖啡、叫个车，都要打开对应 App，一层层点好几步。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>接入了<b class="hl">瑞幸咖啡</b>和<b class="hl">滴滴</b>的 MCP，在手机上一句话点咖啡、打车，不用再打开对应 App。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:1.125">
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/14-luckin-order.jpg" alt="点咖啡对话截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：点咖啡对话截图</strong><code>images/<wbr>14-luckin-order.jpg</code></figcaption>
+        </figure>
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/15-didi-ride.jpg" alt="打车对话截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：打车对话截图</strong><code>images/<wbr>15-didi-ride.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide theme-life" data-part="life">
+  <div class="slide-inner">
+    <p class="eyebrow r">生活篇 · 3/4</p>
+    <h2 class="r">制定出游攻略</h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>自己翻小红书查心仪地点、查离我多远、查周边美食，一个周末的攻略要翻好久。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>让它控制<b class="hl">备用机</b>去查攻略、查位置、查餐厅，只把最终结论发给我，省下大量操作时间。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:0.5625">
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/16-weekend-trip.jpg" alt="遛娃攻略推荐结果截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：遛娃攻略推荐结果截图</strong><code>images/<wbr>16-weekend-trip.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="slide theme-life" data-part="life">
+  <div class="slide-inner">
+    <p class="eyebrow r">生活篇 · 4/4</p>
+    <h2 class="r">电商比价下单</h2>
+    <div class="cols">
+      <div class="text">
+        <div class="case pain r">
+          <h3>痛点</h3>
+          <p>同一件东西要在几个 App 之间来回搜、对规格、比价格。</p>
+        </div>
+        <div class="case gain r">
+          <h3>解法</h3>
+          <p>在<b>拼多多</b>上让 AI 直接控制备用机比价下单，从账号注册到下单<b class="hl">全程没有触发风控</b>，最后我自己确认付款就行。</p>
+        </div>
+      </div>
+      <div class="media" style="--sum:0.5625">
+        <figure class="ph phone" style="--r:0.5625">
+          <img data-src="images/17-pdd-order.jpg" alt="拼多多比价下单截图" onerror="phError(this)" onload="phLoad(this)">
+          <figcaption><strong>占位图：拼多多比价下单截图</strong><code>images/<wbr>17-pdd-order.jpg</code></figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 结尾 ============ -->
+<section class="slide cover ending" data-part="qa">
+  <div class="slide-inner center">
+    <p class="eyebrow r">最后一点感悟</p>
+    <p class="closing-lead r">驾驭 AI，没有什么捷径。</p>
+    <p class="closing r">遇到<em class="hl">耗时繁琐</em>的事，<br>就交给 AI 试试；<br>做多了，自然就会了。</p>
+    <p class="speaker r">楼贝怡<span>·</span>AI 产品经理<span>·</span>粉象生活</p>
+  </div>
+</section>
+
+</main>
+
+<nav class="pager" aria-label="翻页">
+  <button type="button" id="prev" aria-label="上一页">‹</button>
+  <button type="button" id="next" aria-label="下一页">›</button>
+</nav>
+
+<script src="app.js?v=11010011"></script>
+</body>
+</html>
